@@ -45,10 +45,11 @@ ParseError.prototype.inspect = function () {
     return this.annotated;
 };
 
-function compile(filename, source, options, callback) {
+function compile(filename, source, options, compiler, callback) {
     var compiled;
+    if (!callback) callback = compiler
     try {
-        compiled = coffee.compile(source, {
+        compiled = (compiler || coffee).compile(source, {
             sourceMap: options.sourceMap,
             inline: true,
             bare: options.bare,
@@ -107,7 +108,7 @@ function coffeeify(filename, options) {
     function flush(callback) {
         var stream = this;
         var source = Buffer.concat(chunks).toString();
-        compile(filename, source, compileOptions, function(error, result) {
+        compile(filename, source, compileOptions, options.compiler, function(error, result) {
             if (!error) stream.push(result);
             callback(error);
         });
